@@ -1,0 +1,100 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: ruta360_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ../:/var/www/html
+    environment:
+      - PHP_MEMORY_LIMIT=256M
+    depends_on:
+      - db
+      - redis
+    networks:
+      - ruta360
+
+  nginx:
+    image: nginx:alpine
+    container_name: ruta360_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../:/var/www/html
+      - ./docker/nginx:/etc/nginx/conf.d
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    depends_on:
+      - app
+    networks:
+      - ruta360
+
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: ruta360_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-ruta360}
+      POSTGRES_USER: ${DB_USERNAME:-ruta360}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?falta definir DB_PASSWORD en .env}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432" # solo accesible desde el propio VPS, no expuesto a internet
+    networks:
+      - ruta360
+
+  redis:
+    image: redis:7-alpine
+    container_name: ruta360_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - ruta360
+
+  queue:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: ruta360_queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    volumes:
+      - ../:/var/www/html
+    depends_on:
+      - db
+      - redis
+    networks:
+      - ruta360
+
+  scheduler:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: ruta360_scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
+    volumes:
+      - ../:/var/www/html
+    depends_on:
+      - db
+      - redis
+    networks:
+      - ruta360
+
+networks:
+  ruta360:
+    driver: bridge
+
+volumes:
+  db_data:
+  redis_data:
+  certbot_www:
+  certbot_conf:
