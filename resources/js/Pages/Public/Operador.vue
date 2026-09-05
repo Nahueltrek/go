@@ -1,7 +1,11 @@
 <script setup>
 import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
-import MapView from '@/Components/MapView.vue'
+import EntityHero from '@/Components/Public/EntityHero.vue'
+import CategoryChips from '@/Components/Public/CategoryChips.vue'
+import ContactButtons from '@/Components/Public/ContactButtons.vue'
+import LocationMap from '@/Components/Public/LocationMap.vue'
+import SeoHead from '@/Components/SeoHead.vue'
 
 const props = defineProps({
   organization: Object,
@@ -15,19 +19,17 @@ const locationLabel = computed(() => {
   return commune.region ? `${commune.name}, ${commune.region}` : commune.name
 })
 
-const mapBusinesses = computed(() => {
-  const loc = props.organization.location
-  if (!loc) return []
-  return [{
-    name: props.organization.name,
-    category: props.organization.categories?.[0] ?? '',
-    latitude: loc.lat,
-    longitude: loc.lng,
-  }]
-})
+const seoDescription = computed(() =>
+  props.organization.description || `Conocé a ${props.organization.name}, parte de la red de operadores y colaboradores de GO Chile.`
+)
 </script>
 
 <template>
+  <SeoHead
+    :title="`${organization.name} — GO Chile`"
+    :description="seoDescription"
+    :image="organization.cover_image || organization.logo_url"
+  />
   <div class="min-h-screen bg-white pb-12">
     <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-sky-100 px-4 py-2.5 flex items-center gap-2">
       <Link href="/" class="shrink-0">
@@ -36,58 +38,35 @@ const mapBusinesses = computed(() => {
       <span class="text-xs font-bold text-sky-950">GO Chile</span>
     </header>
 
-    <!-- Hero -->
-    <section
-      class="relative overflow-hidden animate-fade-in-up"
-      :class="!organization.cover_image && 'bg-gradient-to-br from-sky-800 to-sky-950'"
-      :style="organization.cover_image
-        ? { backgroundImage: `url(${organization.cover_image})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-        : {}"
-    >
-      <div v-if="organization.cover_image" class="absolute inset-0 bg-gradient-to-t from-sky-950/90 via-sky-950/40 to-sky-950/10"></div>
-      <div class="relative px-4 pt-10 pb-6">
-        <div class="flex items-center gap-3">
-          <div class="h-16 w-16 shrink-0 rounded-2xl bg-white/10 backdrop-blur overflow-hidden ring-1 ring-white/20">
-            <img v-if="organization.logo_url" :src="organization.logo_url" class="h-full w-full object-cover" />
-          </div>
-          <div class="min-w-0">
-            <p class="text-xs uppercase tracking-wide text-sky-200">{{ organization.type }}</p>
-            <h1 class="text-xl font-bold text-white truncate">{{ organization.name }}</h1>
-            <p v-if="locationLabel" class="text-xs text-sky-200">{{ locationLabel }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <EntityHero
+      :title="organization.name"
+      :subtitle="organization.type"
+      :meta="locationLabel"
+      :cover-image="organization.cover_image"
+      :logo-url="organization.logo_url"
+    />
 
     <!-- Datos destacados -->
     <section class="px-4 pt-4 animate-fade-in-up" style="animation-delay: .05s">
-      <div class="flex gap-2 flex-wrap">
-        <span
-          v-for="cat in organization.categories"
-          :key="cat"
-          class="text-xs rounded-full border border-sky-200 px-2.5 py-1 text-sky-600"
-        >{{ cat }}</span>
-      </div>
+      <CategoryChips :categories="organization.categories ?? []" />
 
       <p v-if="organization.description" class="text-sm text-sky-600 mt-4 leading-relaxed">
         {{ organization.description }}
       </p>
 
-      <div class="flex gap-2 mt-4 flex-wrap">
-        <a v-if="organization.whatsapp" :href="`https://wa.me/${organization.whatsapp}`"
-           class="text-sm font-medium rounded-full bg-sky-900 text-white px-4 py-2">WhatsApp</a>
-        <a v-if="organization.instagram" :href="organization.instagram"
-           class="text-sm font-medium rounded-full border border-sky-200 text-sky-700 px-4 py-2">Instagram</a>
-        <a v-if="organization.website" :href="organization.website"
-           class="text-sm font-medium rounded-full border border-sky-200 text-sky-700 px-4 py-2">Sitio web</a>
-      </div>
+      <ContactButtons
+        :whatsapp="organization.whatsapp"
+        :instagram="organization.instagram"
+        :website="organization.website"
+      />
     </section>
 
-    <!-- Mapa -->
-    <section v-if="organization.location" class="px-4 pt-6 animate-fade-in-up" style="animation-delay: .1s">
-      <h2 class="text-sm font-semibold text-sky-900 mb-3">Ubicación</h2>
-      <MapView :businesses="mapBusinesses" :attractions="[]" />
-    </section>
+    <LocationMap
+      :lat="organization.location?.lat"
+      :lng="organization.location?.lng"
+      :name="organization.name"
+      :category="organization.categories?.[0] ?? ''"
+    />
 
     <!-- Experiencias -->
     <section v-if="experiences.data?.length" class="px-4 py-6 space-y-3 animate-fade-in-up" style="animation-delay: .15s">

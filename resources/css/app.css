@@ -1,5 +1,30 @@
 @import "tailwindcss";
 
+/**
+ * Sistema de diseño GO Chile 2.0 (Fase 5.1) — documentación, no tokens
+ * nuevos. La identidad "azul" ya es la escala `sky-*` nativa de Tailwind
+ * (sky-50 fondos claros, sky-900/950 texto fuerte y superficies oscuras),
+ * usada consistente en Home/Explorar/Mapa/Operador/Experiencia/Proyecto/
+ * Owner/Admin desde los Sprints 3-4. No se agregan colores nuevos acá —
+ * el pedido explícito de esta fase es "no festival de colores": el azul
+ * da identidad y navegación, la fotografía da la emoción.
+ *
+ * Jerarquía tipográfica ya en uso, formalizada para que las próximas
+ * subfases (Home, Explorar, Organization, Experience, Project...) la
+ * apliquen de forma consistente en vez de inventar tamaños nuevos por
+ * página:
+ *   H1   — text-xl font-bold          (título de página/ficha)
+ *   H2   — text-base o text-lg font-bold  (título de sección)
+ *   H3   — text-xs font-bold uppercase tracking-wide  (rótulo de bloque)
+ *   body — text-sm                     (texto de lectura)
+ *   meta — text-xs / text-[11px]       (fecha, territorio, categoría)
+ *   CTA  — text-xs font-medium/font-semibold (botones y links de acción)
+ *
+ * Los tokens `--color-glacier/ink/river/...` y las fuentes Fraunces/IBM
+ * Plex de abajo son del sistema visual rm360 (legacy) — se mantienen
+ * porque `AdminLayout` todavía envuelve páginas legacy que las usan
+ * (Businesses/Claims/Reviews/Articles). No forman parte de GO Chile 2.0.
+ */
 @theme {
     --color-glacier: #eef3f1;
     --color-ink: #1f2b24;

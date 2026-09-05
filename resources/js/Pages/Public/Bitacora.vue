@@ -1,5 +1,6 @@
 <script setup>
 import { router, Link } from '@inertiajs/vue3'
+import SeoHead from '@/Components/SeoHead.vue'
 
 const props = defineProps({
   posts: Object,
@@ -13,6 +14,10 @@ function filterBy(key) {
 </script>
 
 <template>
+  <SeoHead
+    title="Bitácora — GO Chile"
+    description="Historias, rutas y contenido de la comunidad outdoor de GO Chile."
+  />
   <div class="min-h-screen bg-white pb-12">
     <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-sky-100 px-4 py-2.5 flex items-center gap-2">
       <Link href="/" class="shrink-0">

@@ -19,9 +19,21 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Clave dedicada solo para tests, sin relación con la real de .env -->
+        <env name="APP_KEY" value="base64:z4K0ZZB91D6tjvgMNv/b6YezmbmM71JUp3i1LMkZn38="/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="DB_CONNECTION" value="pgsql"/>
-        <env name="DB_DATABASE" value="ruta360_testing"/>
+        <!--
+            El proyecto corre sobre MariaDB (ver config/database.php — 'pgsql'
+            ni siquiera está definido ahí, era config heredada del Docker de
+            rm360 original y estaba rota). Se usa el mismo motor 'mysql' que
+            producción, pero apuntado a una base de datos separada — hereda
+            DB_HOST/DB_USERNAME/DB_PASSWORD del .env real, solo cambia el
+            nombre de la base. Esa base ('gochile_testing') hay que crearla
+            a mano antes de correr los tests; RefreshDatabase se encarga de
+            correr las migraciones ahí, nunca toca la base de producción.
+        -->
+        <env name="DB_CONNECTION" value="mysql"/>
+        <env name="DB_DATABASE" value="gochile_testing"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

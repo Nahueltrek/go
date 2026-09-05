@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attraction;
 use App\Models\Business;
 use App\Models\Event;
 use App\Models\Experience;
@@ -82,6 +83,17 @@ class MapController extends Controller
             );
         }
 
+        if (! $layer || $layer === 'atractivos') {
+            $features = $features->merge(
+                Attraction::withCoordinates()->whereNotNull('location')->get()
+                    ->filter(fn ($a) => $a->latitude !== null)
+                    ->map(fn ($a) => $this->feature(
+                        $a->latitude, $a->longitude, 'atractivos', $a->name,
+                        "/atractivos/{$a->slug}", $a->category
+                    ))
+            );
+        }
+
         if (! $layer || $layer === 'eventos') {
             $features = $features->merge(
                 Event::published()->upcoming()->withCoordinates()->whereNotNull('location')->get()
@@ -118,6 +130,7 @@ class MapController extends Controller
             ['key' => 'operadores', 'label' => 'Operadores', 'color' => '#b4562a', 'icon' => '🤝'],
             ['key' => 'negocios', 'label' => 'Negocios', 'color' => '#7b5ea3', 'icon' => '🏪'],
             ['key' => 'proyectos', 'label' => 'Proyectos', 'color' => '#4a7c3f', 'icon' => '🌱'],
+            ['key' => 'atractivos', 'label' => 'Atractivos', 'color' => '#c2410c', 'icon' => '📍'],
             ['key' => 'eventos', 'label' => 'Agenda', 'color' => '#c9962c', 'icon' => '📅'],
         ];
     }

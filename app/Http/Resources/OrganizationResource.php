@@ -14,6 +14,16 @@ class OrganizationResource extends JsonResource
             'type' => $this->type,
             'name' => $this->name,
             'slug' => $this->slug,
+            'status' => $this->status,
+            'user_id' => $this->user_id,
+            'owner' => $this->whenLoaded('user', fn () => $this->user ? [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+            ] : null),
+            'verification_status' => $this->verification_status,
+            'claim_status' => $this->claim_status,
+            'opening_hours' => $this->opening_hours,
             'description' => $this->description,
             'commune' => $this->whenLoaded('commune', fn () => [
                 'id' => $this->commune->id,

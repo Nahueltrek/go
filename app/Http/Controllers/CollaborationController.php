@@ -37,7 +37,10 @@ class CollaborationController extends Controller
             'services' => ['nullable', 'array'],
         ]);
 
-        CollaborationRequest::create($validated + ['status' => 'pending']);
+        CollaborationRequest::create($validated + [
+            'status' => 'pending',
+            'user_id' => $request->user()?->id,
+        ]);
 
         return back()->with('success', '¡Gracias! Revisamos tu postulación y te contactamos pronto.');
     }

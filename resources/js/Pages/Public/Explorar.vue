@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
+import SeoHead from '@/Components/SeoHead.vue'
 
 const props = defineProps({
   results: Object,
@@ -52,6 +53,10 @@ const totalResults = computed(() => {
 </script>
 
 <template>
+  <SeoHead
+    title="Explorar — GO Chile"
+    description="Buscá experiencias, operadores, negocios, rutas, eventos y proyectos outdoor en Chile por región, categoría o actividad."
+  />
   <div class="min-h-screen bg-white">
     <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-sky-100 px-4 py-2.5 flex items-center gap-2">
       <Link href="/" class="shrink-0">

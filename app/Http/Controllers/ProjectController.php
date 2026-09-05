@@ -18,7 +18,7 @@ class ProjectController extends Controller
             ->firstOrFail();
 
         return Inertia::render('Public/Proyecto', [
-            'project' => new ProjectResource($project),
+            'project' => (new ProjectResource($project))->resolve(),
         ]);
     }
 }

@@ -16,7 +16,7 @@ class ProjectResource extends JsonResource
             'description' => $this->description,
             'category' => $this->category,
             'how_to_collaborate' => $this->how_to_collaborate,
-            'organization' => new OrganizationResource($this->whenLoaded('organization')),
+            'organization' => $this->whenLoaded('organization', fn () => (new OrganizationResource($this->organization))->resolve()),
             'images' => $this->whenLoaded('images', fn () => $this->images->pluck('url')),
         ];
     }

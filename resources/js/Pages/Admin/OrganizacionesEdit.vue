@@ -1,11 +1,13 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
+import AdminLayout from '@/Layouts/AdminLayout.vue'
 
 const props = defineProps({
   organization: Object,
   regions: Array,
   categories: Array,
+  users: Array,
 })
 
 function findRegionIdForCommune(communeId) {
@@ -17,6 +19,7 @@ function findRegionIdForCommune(communeId) {
 }
 
 const form = ref({
+  user_id: props.organization.user_id ?? null,
   description: props.organization.description ?? '',
   commune_id: props.organization.commune?.id ?? null,
   latitude: props.organization.location?.lat ?? null,
@@ -26,6 +29,9 @@ const form = ref({
   whatsapp: props.organization.whatsapp ?? '',
   logo_url: props.organization.logo_url ?? '',
   cover_image: props.organization.cover_image ?? '',
+  verification_status: props.organization.verification_status ?? 'unverified',
+  claim_status: props.organization.claim_status ?? 'unclaimed',
+  opening_hours: props.organization.opening_hours ? JSON.stringify(props.organization.opening_hours, null, 2) : '',
   category_ids: [...(props.organization.category_ids ?? [])],
 })
 
@@ -58,14 +64,8 @@ function save() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-sky-50 px-4 py-6">
-    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-sky-100 -mx-4 px-4 py-2.5 mb-4 flex items-center gap-2">
-      <Link href="/" class="shrink-0">
-        <img src="/images/logo.png" alt="GO Chile" class="h-7 w-7 rounded-full" />
-      </Link>
-      <span class="text-xs font-bold text-sky-950">GO Chile · Admin</span>
-    </header>
-
+  <AdminLayout>
+  <div class="px-4 py-6">
     <div class="relative -mx-4 px-4 pt-6 pb-8 mb-5 overflow-hidden bg-gradient-to-br from-sky-800 to-sky-950">
       <h1 class="text-xl font-bold text-white animate-fade-in-up truncate">Editar {{ organization.name }}</h1>
       <svg class="absolute bottom-0 left-0 w-full h-6" viewBox="0 0 400 24" preserveAspectRatio="none">
@@ -164,6 +164,46 @@ function save() {
       </section>
 
       <section class="rounded-2xl bg-white border border-sky-100 p-4 animate-fade-in-up" style="animation-delay: .15s">
+        <h2 class="text-xs font-bold text-sky-900 uppercase tracking-wide mb-3">Verificación</h2>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-sky-500 mb-1">Dueño (usuario)</label>
+            <select v-model="form.user_id"
+                    class="w-full rounded-xl border border-sky-200 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300">
+              <option :value="null">Sin dueño asignado</option>
+              <option v-for="u in users" :key="u.id" :value="u.id">{{ u.name }} ({{ u.email }})</option>
+            </select>
+            <p class="text-xs text-sky-400 mt-1">
+              El dueño puede editar esta organización y crear sus propias experiencias/proyectos desde /mi-organizacion.
+            </p>
+          </div>
+          <div>
+            <label class="block text-xs text-sky-500 mb-1">Estado de verificación</label>
+            <select v-model="form.verification_status"
+                    class="w-full rounded-xl border border-sky-200 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300">
+              <option value="unverified">Sin verificar</option>
+              <option value="pending">Pendiente</option>
+              <option value="verified">Verificado</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-sky-500 mb-1">Estado de reclamo</label>
+            <select v-model="form.claim_status"
+                    class="w-full rounded-xl border border-sky-200 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300">
+              <option value="unclaimed">Sin reclamar</option>
+              <option value="pending">Pendiente</option>
+              <option value="claimed">Reclamado</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-sky-500 mb-1">Horario de atención (JSON, opcional)</label>
+            <textarea v-model="form.opening_hours" rows="4" placeholder='{"lunes": "9:00-18:00"}'
+                      class="w-full rounded-xl border border-sky-200 text-sm px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-sky-300"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-2xl bg-white border border-sky-100 p-4 animate-fade-in-up" style="animation-delay: .15s">
         <h2 class="text-xs font-bold text-sky-900 uppercase tracking-wide mb-3">Categorías</h2>
         <div class="grid grid-cols-2 gap-2">
           <label v-for="cat in categories" :key="cat.id"
@@ -185,6 +225,7 @@ function save() {
       </div>
     </form>
   </div>
+  </AdminLayout>
 </template>
 
 <style scoped>

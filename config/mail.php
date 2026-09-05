@@ -29,7 +29,7 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'contacto@rm360.0km.app'),
-        'name' => env('MAIL_FROM_NAME', 'Ruta Cajón del Maipo 360'),
+        'name' => env('MAIL_FROM_NAME', 'GO Chile'),
     ],
 
 ];

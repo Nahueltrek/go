@@ -1,7 +1,9 @@
 <script setup>
+import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
+import SeoHead from '@/Components/SeoHead.vue'
 
-defineProps({
+const props = defineProps({
   project: Object,
 })
 
@@ -11,9 +13,18 @@ const categoryLabels = {
   biodiversidad: 'Biodiversidad',
   comunidad: 'Comunidad',
 }
+
+const seoDescription = computed(() =>
+  props.project.description || `Proyecto de ${categoryLabels[props.project.category] || props.project.category} en GO Chile.`
+)
 </script>
 
 <template>
+  <SeoHead
+    :title="`${project.name} — GO Chile`"
+    :description="seoDescription"
+    :image="project.images?.[0]"
+  />
   <div class="min-h-screen bg-white pb-12">
     <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-sky-100 px-4 py-2.5 flex items-center gap-2">
       <Link href="/" class="shrink-0">

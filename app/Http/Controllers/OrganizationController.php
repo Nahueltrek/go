@@ -20,7 +20,7 @@ class OrganizationController extends Controller
             ->firstOrFail();
 
         return Inertia::render('Public/Operador', [
-            'organization' => new OrganizationResource($organization),
+            'organization' => (new OrganizationResource($organization))->resolve(),
             'experiences' => ExperienceResource::collection(
                 $organization->experiences()->published()->with(['images', 'activityType'])->get()
             ),

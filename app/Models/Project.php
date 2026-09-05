@@ -35,4 +35,9 @@ class Project extends Model
     {
         return $query->where('status', 'published');
     }
+
+    public function scopePendingReview($query)
+    {
+        return $query->where('status', 'pending_review');
+    }
 }

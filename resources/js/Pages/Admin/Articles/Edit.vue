@@ -29,6 +29,7 @@ function submit() {
 
 <template>
   <AdminLayout>
+    <div class="max-w-5xl mx-auto px-6 md:px-10 py-8 text-ink font-body antialiased">
     <h1 class="font-display text-2xl mb-6">{{ isEditing ? 'Editar artículo' : 'Nuevo artículo' }}</h1>
 
     <form @submit.prevent="submit" class="space-y-5 max-w-2xl">
@@ -78,5 +79,6 @@ function submit() {
         Guardar
       </button>
     </form>
+    </div>
   </AdminLayout>
 </template>

@@ -1,5 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3'
+import SeoHead from '@/Components/SeoHead.vue'
 
 defineProps({
   events: Object,
@@ -12,6 +13,10 @@ function formatDate(iso) {
 </script>
 
 <template>
+  <SeoHead
+    title="Agenda — GO Chile"
+    description="Próximas salidas, talleres y actividades outdoor en Chile."
+  />
   <div class="min-h-screen bg-white pb-12">
     <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-sky-100 px-4 py-2.5 flex items-center gap-2">
       <Link href="/" class="shrink-0">

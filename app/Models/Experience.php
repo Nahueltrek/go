@@ -13,7 +13,7 @@ class Experience extends Model
 
     protected $fillable = [
         'organization_id', 'destination_id', 'activity_type_id', 'name', 'slug',
-        'description', 'difficulty', 'duration_minutes', 'capacity', 'price', 'status', 'is_featured',
+        'description', 'difficulty', 'duration_minutes', 'capacity', 'price', 'cover_image', 'status', 'is_featured',
     ];
 
     protected $casts = [
@@ -53,5 +53,10 @@ class Experience extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
+    }
+
+    public function scopePendingReview($query)
+    {
+        return $query->where('status', 'pending_review');
     }
 }

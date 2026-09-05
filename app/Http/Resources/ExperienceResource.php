@@ -18,9 +18,10 @@ class ExperienceResource extends JsonResource
             'duration_minutes' => $this->duration_minutes,
             'capacity' => $this->capacity,
             'price' => $this->price,
+            'cover_image' => $this->cover_image,
             'is_featured' => $this->is_featured,
             'activity_type' => $this->whenLoaded('activityType', fn () => $this->activityType->name),
-            'organization' => new OrganizationResource($this->whenLoaded('organization')),
+            'organization' => $this->whenLoaded('organization', fn () => (new OrganizationResource($this->organization))->resolve()),
             'destination' => $this->whenLoaded('destination', fn () => [
                 'id' => $this->destination->id,
                 'name' => $this->destination->name,

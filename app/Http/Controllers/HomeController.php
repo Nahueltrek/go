@@ -6,11 +6,13 @@ use App\Http\Resources\BlogPostResource;
 use App\Http\Resources\EventResource;
 use App\Http\Resources\ExperienceResource;
 use App\Http\Resources\OrganizationResource;
+use App\Http\Resources\ProjectResource;
 use App\Models\BlogPost;
 use App\Models\BusinessCategory;
 use App\Models\Event;
 use App\Models\Experience;
 use App\Models\Organization;
+use App\Models\Project;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -41,6 +43,11 @@ class HomeController extends Controller
             'networkOrganizations' => OrganizationResource::collection(
                 Organization::approved()->with('commune')
                     ->inRandomOrder()->limit(8)->get()
+            ),
+            'featuredProjects' => ProjectResource::collection(
+                Project::published()
+                    ->with(['organization', 'images'])
+                    ->limit(6)->get()
             ),
         ]);
     }

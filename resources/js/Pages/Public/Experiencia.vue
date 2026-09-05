@@ -1,13 +1,44 @@
 <script setup>
+import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
+import EntityHero from '@/Components/Public/EntityHero.vue'
+import CategoryChips from '@/Components/Public/CategoryChips.vue'
+import ContactButtons from '@/Components/Public/ContactButtons.vue'
+import LocationMap from '@/Components/Public/LocationMap.vue'
+import SeoHead from '@/Components/SeoHead.vue'
 
-defineProps({
+const props = defineProps({
   experience: Object,
   reviews: Array,
 })
+
+const seoDescription = computed(() =>
+  props.experience.description
+    || `Experiencia outdoor${props.experience.organization ? ` ofrecida por ${props.experience.organization.name}` : ''} en GO Chile.`
+)
+
+const categories = computed(() => {
+  const difficulty = props.experience.difficulty
+    ? props.experience.difficulty.charAt(0).toUpperCase() + props.experience.difficulty.slice(1)
+    : null
+  return [props.experience.activity_type, difficulty].filter(Boolean)
+})
+
+const hasStats = computed(() =>
+  props.experience.duration_minutes || props.experience.capacity || props.experience.price
+)
+
+// La experiencia puede no tener ubicación propia cargada — en ese caso se
+// usa la del operador que la ofrece, si la tiene.
+const mapPoint = computed(() => props.experience.location ?? props.experience.organization?.location ?? {})
 </script>
 
 <template>
+  <SeoHead
+    :title="`${experience.name} — GO Chile`"
+    :description="seoDescription"
+    :image="experience.cover_image"
+  />
   <div class="min-h-screen bg-white pb-12">
     <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-sky-100 px-4 py-2.5 flex items-center gap-2">
       <Link href="/" class="shrink-0">
@@ -16,45 +47,29 @@ defineProps({
       <span class="text-xs font-bold text-sky-950">GO Chile</span>
     </header>
 
-    <!-- Galería -->
-    <div class="relative h-56 w-full bg-sky-100 overflow-hidden">
-      <img v-if="experience.images?.[0]" :src="experience.images[0]" class="h-full w-full object-cover" />
-      <svg class="absolute bottom-0 left-0 w-full h-6 z-10" viewBox="0 0 400 24" preserveAspectRatio="none">
-        <path d="M0,24 L0,14 L50,4 L100,16 L150,2 L200,14 L250,6 L300,16 L350,8 L400,14 L400,24 Z" fill="white" />
-      </svg>
-    </div>
+    <EntityHero
+      :title="experience.name"
+      :subtitle="experience.activity_type"
+      :cover-image="experience.cover_image"
+      :logo-url="experience.organization?.logo_url"
+    />
 
-    <div class="px-4 py-5">
-      <p class="text-xs uppercase tracking-wide text-sky-400">{{ experience.activity_type }}</p>
-      <h1 class="text-xl font-semibold text-sky-900 mt-0.5 animate-fade-in-up">{{ experience.name }}</h1>
+    <!-- Datos destacados -->
+    <section class="px-4 pt-4 animate-fade-in-up" style="animation-delay: .05s">
+      <CategoryChips :categories="categories" />
 
-      <Link
-        v-if="experience.organization"
-        :href="`/operadores/${experience.organization.slug}`"
-        class="text-sm text-sky-500 underline"
-      >{{ experience.organization.name }}</Link>
-
-      <!-- Datos clave -->
-      <div class="grid grid-cols-2 gap-3 mt-5">
-        <div class="rounded-xl bg-sky-50 p-3">
-          <p class="text-xs text-sky-400">Dificultad</p>
-          <p class="text-sm font-medium text-sky-900 capitalize">{{ experience.difficulty || '—' }}</p>
-        </div>
-        <div class="rounded-xl bg-sky-50 p-3">
+      <div v-if="hasStats" class="flex gap-6 flex-wrap mt-4">
+        <div v-if="experience.duration_minutes">
           <p class="text-xs text-sky-400">Duración</p>
-          <p class="text-sm font-medium text-sky-900">
-            {{ experience.duration_minutes ? `${experience.duration_minutes} min` : '—' }}
-          </p>
+          <p class="text-lg font-semibold text-sky-900">{{ experience.duration_minutes }} min</p>
         </div>
-        <div class="rounded-xl bg-sky-50 p-3">
+        <div v-if="experience.capacity">
           <p class="text-xs text-sky-400">Capacidad</p>
-          <p class="text-sm font-medium text-sky-900">{{ experience.capacity || '—' }}</p>
+          <p class="text-lg font-semibold text-sky-900">{{ experience.capacity }} personas</p>
         </div>
-        <div class="rounded-xl bg-sky-50 p-3">
+        <div v-if="experience.price">
           <p class="text-xs text-sky-400">Precio</p>
-          <p class="text-sm font-medium text-sky-900">
-            {{ experience.price ? `$${experience.price.toLocaleString('es-CL')}` : 'Consultar' }}
-          </p>
+          <p class="text-lg font-semibold text-sky-900">${{ Number(experience.price).toLocaleString('es-CL') }} CLP</p>
         </div>
       </div>
 
@@ -62,16 +77,35 @@ defineProps({
         {{ experience.description }}
       </p>
 
-      <!-- Reseñas -->
-      <section v-if="reviews?.length" class="mt-8 space-y-3">
-        <h2 class="text-sm font-semibold text-sky-900">Reseñas</h2>
-        <div v-for="(r, i) in reviews" :key="i" class="rounded-xl border border-sky-100 p-3">
-          <p class="text-sm text-sky-900">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</p>
-          <p v-if="r.comment" class="text-sm text-sky-600 mt-1">{{ r.comment }}</p>
-          <p class="text-xs text-sky-400 mt-1">{{ r.user_name }}</p>
-        </div>
-      </section>
-    </div>
+      <ContactButtons
+        :whatsapp="experience.organization?.whatsapp"
+        :instagram="experience.organization?.instagram"
+        :website="experience.organization?.website"
+      />
+
+      <Link
+        v-if="experience.organization"
+        :href="`/operadores/${experience.organization.slug}`"
+        class="mt-2 inline-block text-sm font-medium rounded-full border border-sky-200 text-sky-700 px-4 py-2"
+      >Ver operador: {{ experience.organization.name }}</Link>
+    </section>
+
+    <LocationMap
+      :lat="mapPoint.lat"
+      :lng="mapPoint.lng"
+      :name="experience.name"
+      :category="experience.activity_type ?? ''"
+    />
+
+    <!-- Reseñas -->
+    <section v-if="reviews?.length" class="px-4 pt-6 space-y-3 animate-fade-in-up" style="animation-delay: .15s">
+      <h2 class="text-sm font-semibold text-sky-900">Reseñas</h2>
+      <div v-for="(r, i) in reviews" :key="i" class="rounded-xl border border-sky-100 p-3">
+        <p class="text-sm text-sky-900">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</p>
+        <p v-if="r.comment" class="text-sm text-sky-600 mt-1">{{ r.comment }}</p>
+        <p class="text-xs text-sky-400 mt-1">{{ r.user_name }}</p>
+      </div>
+    </section>
 
     <!-- CTA fijo -->
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-sky-100 px-4 py-3">

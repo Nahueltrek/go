@@ -7,6 +7,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * DEPRECADO (Sprint 7) en favor de Organization.
+ *
+ * Business era el modelo de negocios locales heredado de Ruta Cajón del
+ * Maipo 360 (ficha SERNATUR, reclamo de perfil, reviews). Tiene 0 registros
+ * en producción — todo el trabajo real de GO Chile pasa por Organization,
+ * que desde este sprint ya tiene verification_status/claim_status/
+ * opening_hours y soporta reviews/favoritos polimórficos igual que Business.
+ *
+ * No se borra la tabla ni el modelo (podría servir a futuro para reactivar
+ * el catastro tipo SERNATUR), pero no se debe usar para nada nuevo. Las
+ * rutas públicas (/emprendimientos/{slug}) y el panel legacy
+ * (admin/businesses, sin link en la navegación) se dejan funcionando tal
+ * cual, sin desarrollo activo.
+ */
 class Business extends Model
 {
     use HasFactory, HasGeoLocation, SoftDeletes;

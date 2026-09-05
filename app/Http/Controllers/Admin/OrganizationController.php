@@ -7,6 +7,7 @@ use App\Http\Resources\OrganizationResource;
 use App\Models\BusinessCategory;
 use App\Models\Organization;
 use App\Models\Region;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -56,7 +57,7 @@ class OrganizationController extends Controller
         // withCoordinates() agrega latitude/longitude planos (ver HasGeoLocation)
         // que OrganizationResource ya sabe leer para armar 'location'.
         $organization = Organization::withCoordinates()
-            ->with(['commune.province.region', 'categories'])
+            ->with(['commune.province.region', 'categories', 'user'])
             ->findOrFail($organization->id);
 
         return Inertia::render('Admin/OrganizacionesEdit', [
@@ -64,6 +65,9 @@ class OrganizationController extends Controller
                 + ['category_ids' => $organization->categories->pluck('id')],
             'regions' => Region::with('provinces.communes')->orderBy('name')->get(),
             'categories' => BusinessCategory::orderBy('name')->get(['id', 'name', 'slug']),
+            // Para el select de "asignar dueño" (Sprint 2 — ownership manual
+            // para organizaciones existentes, ver docs/SPRINT_1_ARQUITECTURA_GO_CHILE.md §9).
+            'users' => User::orderBy('name')->get(['id', 'name', 'email']),
         ]);
     }
 
@@ -72,6 +76,7 @@ class OrganizationController extends Controller
         $this->authorize('update', $organization);
 
         $validated = $request->validate([
+            'user_id' => ['nullable', 'exists:users,id'],
             'commune_id' => ['nullable', 'exists:communes,id'],
             'instagram' => ['nullable', 'string', 'max:255'],
             'website' => ['nullable', 'url', 'max:255'],
@@ -79,13 +84,26 @@ class OrganizationController extends Controller
             'description' => ['nullable', 'string', 'max:2000'],
             'logo_url' => ['nullable', 'url', 'max:255'],
             'cover_image' => ['nullable', 'url', 'max:255'],
+            'verification_status' => ['nullable', 'in:unverified,pending,verified'],
+            'claim_status' => ['nullable', 'in:unclaimed,pending,claimed'],
+            'opening_hours' => ['nullable', 'string'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['exists:business_categories,id'],
         ]);
 
-        $organization->fill(collect($validated)->except(['latitude', 'longitude', 'category_ids'])->toArray());
+        $organization->fill(collect($validated)->except(['latitude', 'longitude', 'category_ids', 'opening_hours'])->toArray());
+
+        // opening_hours llega como texto JSON desde el textarea del admin —
+        // se decodifica acá en vez de forzar la validación 'array', porque
+        // Inertia manda el form completo como un solo objeto y separar ese
+        // campo en la UI como JSON crudo es más simple que armar un editor
+        // estructurado por ahora (0 datos reales que migrar todavía).
+        if (array_key_exists('opening_hours', $validated)) {
+            $decoded = $validated['opening_hours'] ? json_decode($validated['opening_hours'], true) : null;
+            $organization->opening_hours = json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+        }
 
         if (! empty($validated['latitude']) && ! empty($validated['longitude'])) {
             // Mismo patrón de escritura que Business (ver HasGeoLocation): nunca

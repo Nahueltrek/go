@@ -13,7 +13,7 @@ class CollaborationRequest extends Model
     ];
 
     protected $fillable = [
-        'type', 'name', 'region_id', 'commune_id', 'instagram', 'website',
+        'user_id', 'type', 'name', 'region_id', 'commune_id', 'instagram', 'website',
         'whatsapp', 'description', 'services', 'images', 'status',
     ];
 
@@ -21,6 +21,11 @@ class CollaborationRequest extends Model
         'services' => 'array',
         'images' => 'array',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function region(): BelongsTo
     {
@@ -35,10 +40,16 @@ class CollaborationRequest extends Model
     /**
      * Aprueba la solicitud y crea la Organization correspondiente.
      * No borra el registro de collaboration_requests: queda como historial.
+     *
+     * Si quien postuló estaba logueado (user_id no nulo), queda como dueño
+     * de la Organization desde el momento en que se crea (Sprint 2). Si
+     * postuló anónimo, la Organization nace sin dueño — un admin puede
+     * asignarlo después a mano desde Admin\OrganizationController.
      */
     public function approve(): Organization
     {
         $organization = Organization::create([
+            'user_id' => $this->user_id,
             'type' => $this->type,
             'name' => $this->name,
             'slug' => \Illuminate\Support\Str::slug($this->name),

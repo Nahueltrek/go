@@ -13,12 +13,18 @@ class ExperienceController extends Controller
     {
         $experience = Experience::published()
             ->withCoordinates()
-            ->with(['organization.commune', 'activityType', 'destination', 'images', 'reviews.user'])
+            ->with([
+                'organization' => fn ($q) => $q->withCoordinates()->with('commune'),
+                'activityType',
+                'destination',
+                'images',
+                'reviews.user',
+            ])
             ->where('slug', $slug)
             ->firstOrFail();
 
         return Inertia::render('Public/Experiencia', [
-            'experience' => new ExperienceResource($experience),
+            'experience' => (new ExperienceResource($experience))->resolve(),
             'reviews' => $experience->reviews->map(fn ($r) => [
                 'rating' => $r->rating,
                 'comment' => $r->comment,

@@ -18,12 +18,12 @@ class OrganizationPolicy
             return true;
         }
 
-        return $user && ($user->id === $organization->user_id || $user->hasRole('admin'));
+        return $user && ($organization->isOwnedBy($user) || $user->hasRole('admin'));
     }
 
     public function update(User $user, Organization $organization): bool
     {
-        return $user->id === $organization->user_id || $user->hasRole('admin');
+        return $organization->isOwnedBy($user) || $user->hasRole('admin');
     }
 
     public function delete(User $user, Organization $organization): bool

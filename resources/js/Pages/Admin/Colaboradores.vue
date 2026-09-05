@@ -1,5 +1,6 @@
 <script setup>
 import { router, usePage, Link } from '@inertiajs/vue3'
+import AdminLayout from '@/Layouts/AdminLayout.vue'
 
 const props = defineProps({
   requests: Object,
@@ -28,14 +29,8 @@ function reject(id) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-sky-50 px-4 py-6">
-    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-sky-100 -mx-4 px-4 py-2.5 mb-4 flex items-center gap-2">
-      <Link href="/" class="shrink-0">
-        <img src="/images/logo.png" alt="GO Chile" class="h-7 w-7 rounded-full" />
-      </Link>
-      <span class="text-xs font-bold text-sky-950">GO Chile · Admin</span>
-    </header>
-
+  <AdminLayout>
+  <div class="px-4 py-6">
     <div class="relative -mx-4 px-4 pt-6 pb-8 mb-5 overflow-hidden bg-gradient-to-br from-sky-800 to-sky-950">
       <h1 class="text-xl font-bold text-white animate-fade-in-up">Postulaciones de colaboradores</h1>
       <svg class="absolute bottom-0 left-0 w-full h-6" viewBox="0 0 400 24" preserveAspectRatio="none">
@@ -95,6 +90,7 @@ function reject(id) {
       </p>
     </div>
   </div>
+  </AdminLayout>
 </template>
 
 <style scoped>

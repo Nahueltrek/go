@@ -3,6 +3,7 @@ import { onMounted, onBeforeUnmount, ref } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import SeoHead from '@/Components/SeoHead.vue'
 
 const props = defineProps({
   layers: Array,
@@ -75,6 +76,7 @@ async function loadGeojson() {
           'operadores', '#b4562a',
           'negocios', '#7b5ea3',
           'proyectos', '#4a7c3f',
+          'atractivos', '#c2410c',
           'eventos', '#c9962c',
           '#1c1c1c',
         ],
@@ -148,6 +150,10 @@ onBeforeUnmount(() => map?.remove())
 </script>
 
 <template>
+  <SeoHead
+    title="Mapa — GO Chile"
+    description="Explorá en el mapa experiencias, operadores, negocios, proyectos, atractivos y eventos outdoor de todo Chile."
+  />
   <div class="relative h-screen w-full">
     <div ref="mapContainer" style="position:absolute;top:0;right:0;bottom:0;left:0;"></div>
 
