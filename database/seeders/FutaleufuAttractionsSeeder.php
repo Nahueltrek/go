@@ -63,20 +63,21 @@ class FutaleufuAttractionsSeeder extends Seeder
         ];
 
         foreach ($attractions as $data) {
-            $attraction = Attraction::updateOrCreate(
-                ['slug' => $data['slug']],
-                [
-                    'destination_id' => $destination->id,
-                    'commune_id' => $communeId,
-                    'name' => $data['name'],
-                    'description' => $data['description'],
-                    'category' => $data['category'],
-                    'source' => $data['source'],
-                    'source_url' => $data['source_url'],
-                    'source_type' => $data['source_type'],
-                ]
-            );
-
+            // firstOrNew (no updateOrCreate): 'location' es NOT NULL en la
+            // tabla y updateOrCreate() dispara el INSERT antes de que
+            // podamos asignarla — con firstOrNew se arma el modelo completo
+            // en memoria, incluida location, y se persiste en un solo save().
+            $attraction = Attraction::firstOrNew(['slug' => $data['slug']]);
+            $attraction->fill([
+                'destination_id' => $destination->id,
+                'commune_id' => $communeId,
+                'name' => $data['name'],
+                'description' => $data['description'],
+                'category' => $data['category'],
+                'source' => $data['source'],
+                'source_url' => $data['source_url'],
+                'source_type' => $data['source_type'],
+            ]);
             $attraction->location = Attraction::pointExpression($data['lat'], $data['lng']);
             $attraction->save();
         }
