@@ -250,6 +250,12 @@ function toggleEclipseZone() {
   }
   const display = eclipseZoneVisible.value ? '' : 'none'
   eclipseZoneLabelMarkers.forEach((m) => m.getElement().style.setProperty('display', display))
+
+  if (eclipseZoneVisible.value) {
+    const bounds = new maplibregl.LngLatBounds()
+    eclipseBandPolygon().forEach((coord) => bounds.extend(coord))
+    map.fitBounds(bounds, { padding: 60, duration: 1000 })
+  }
 }
 
 function toggleLayer(key) {
