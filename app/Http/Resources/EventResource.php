@@ -21,7 +21,10 @@ class EventResource extends JsonResource
             'price' => $this->price,
             'difficulty' => $this->difficulty,
             'cover_image' => $this->cover_image,
-            'organization' => new OrganizationResource($this->whenLoaded('organization')),
+            // organization_id es nullable (eventos editoriales de GO Chile,
+            // sin operador atribuido) — $this->organization es null en ese
+            // caso, y OrganizationResource(null) rompe al leer sus propiedades.
+            'organization' => $this->whenLoaded('organization', fn () => $this->organization ? new OrganizationResource($this->organization) : null),
             'destination' => $this->whenLoaded('destination', fn () => [
                 'id' => $this->destination->id,
                 'name' => $this->destination->name,
