@@ -15,8 +15,36 @@ const allFeatures = ref([])
 const userLocation = ref(null)
 const selectedFeature = ref(null)
 const locating = ref(false)
+const eclipseZoneVisible = ref(true)
 let map
 let geolocate
+
+/**
+ * Zona referencial de mayor duración del Eclipse Solar Anular del
+ * 6-feb-2027 — NO es el trazado científico exacto de la franja de
+ * anularidad (eso requiere el KML/GeoJSON oficial de NASA/observatorios,
+ * que este entorno no puede descargar). Es una elipse ilustrativa que
+ * cubre las localidades públicamente citadas con mayor duración
+ * (Futaleufú, Chaitén, Palena, Quellón), pensada para dar notoriedad
+ * visual al evento hasta que se cargue el trazado real.
+ */
+function eclipseZoneRing() {
+  const centerLat = -43.21
+  const centerLng = -72.5
+  const semiMajorKm = 130 // eje este-oeste
+  const semiMinorKm = 75  // eje norte-sur
+  const latKmPerDeg = 110.574
+  const lngKmPerDeg = 111.320 * Math.cos(centerLat * Math.PI / 180)
+  const points = 64
+  const ring = []
+  for (let i = 0; i <= points; i++) {
+    const theta = (i / points) * 2 * Math.PI
+    const dLng = (semiMajorKm * Math.cos(theta)) / lngKmPerDeg
+    const dLat = (semiMinorKm * Math.sin(theta)) / latKmPerDeg
+    ring.push([centerLng + dLng, centerLat + dLat])
+  }
+  return ring
+}
 
 const layerMeta = computed(() => Object.fromEntries(props.layers.map((l) => [l.key, l])))
 
@@ -148,6 +176,52 @@ async function loadGeojson() {
   }
 }
 
+function addEclipseZoneLayer() {
+  map.addSource('eclipse-zone', {
+    type: 'geojson',
+    data: {
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'Polygon', coordinates: [eclipseZoneRing()] },
+    },
+  })
+
+  map.addLayer({
+    id: 'eclipse-zone-fill',
+    type: 'fill',
+    source: 'eclipse-zone',
+    paint: { 'fill-color': '#f59e0b', 'fill-opacity': 0.12 },
+  })
+
+  map.addLayer({
+    id: 'eclipse-zone-outline',
+    type: 'line',
+    source: 'eclipse-zone',
+    paint: { 'line-color': '#d97706', 'line-width': 2, 'line-dasharray': [3, 2] },
+  })
+
+  map.addLayer({
+    id: 'eclipse-zone-label',
+    type: 'symbol',
+    source: 'eclipse-zone',
+    layout: {
+      'symbol-placement': 'point',
+      'text-field': '🌑 Zona de mayor duración — Eclipse 2027 (referencial)',
+      'text-size': 11,
+      'text-anchor': 'center',
+    },
+    paint: { 'text-color': '#92400e', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
+  })
+}
+
+function toggleEclipseZone() {
+  eclipseZoneVisible.value = !eclipseZoneVisible.value
+  const visibility = eclipseZoneVisible.value ? 'visible' : 'none'
+  for (const id of ['eclipse-zone-fill', 'eclipse-zone-outline', 'eclipse-zone-label']) {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', visibility)
+  }
+}
+
 function toggleLayer(key) {
   const next = new Set(activeLayers.value)
   if (next.has(key)) next.delete(key)
@@ -193,6 +267,7 @@ onMounted(async () => {
   geolocate.on('error', () => { locating.value = false })
 
   map.on('load', () => {
+    addEclipseZoneLayer()
     loadGeojson()
     // Pide ubicación automáticamente al abrir el mapa — si el usuario
     // rechaza el permiso, el mapa se queda con la vista de todo Chile
@@ -287,6 +362,14 @@ onBeforeUnmount(() => map?.remove())
 
     <div v-if="!selectedFeature" class="absolute bottom-4 left-0 right-0 px-4 z-10">
       <div class="flex gap-2 overflow-x-auto no-scrollbar bg-white/95 backdrop-blur rounded-full px-2 py-2 shadow-lg mx-auto max-w-fit">
+        <button
+          @click="toggleEclipseZone"
+          class="shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-opacity"
+          style="background-color:#f59e0b1a; color:#92400e"
+          :class="eclipseZoneVisible ? 'opacity-100' : 'opacity-35'"
+        >
+          <span>🌑</span>Eclipse 2027
+        </button>
         <button
           v-for="l in layers"
           :key="l.key"
