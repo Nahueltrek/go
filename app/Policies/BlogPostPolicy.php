@@ -37,4 +37,12 @@ class BlogPostPolicy
     {
         return $user->hasRole('admin');
     }
+
+    public function publish(User $user, BlogPost $post): bool
+    {
+        // Igual que en ArticlePolicy: cualquiera con permiso de editar puede
+        // dejar la historia en borrador, pero solo admin decide que salga
+        // publicada.
+        return $user->hasRole('admin') || $user->hasRole('super_admin');
+    }
 }

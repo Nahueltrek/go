@@ -77,6 +77,7 @@ async function loadGeojson() {
           'negocios', '#7b5ea3',
           'proyectos', '#4a7c3f',
           'atractivos', '#c2410c',
+          'destinos', '#0d9488',
           'eventos', '#c9962c',
           '#1c1c1c',
         ],
@@ -93,7 +94,7 @@ async function loadGeojson() {
         .setHTML(
           `<strong>${escapeHtml(props.name)}</strong><br>` +
           `<span style="font-size:12px;color:#666">${escapeHtml(props.subtitle ?? '')}</span><br>` +
-          `<a href="${props.url}" style="font-size:12px">Ver ficha →</a>`
+          (props.url ? `<a href="${props.url}" style="font-size:12px">Ver ficha →</a>` : '')
         )
         .addTo(map)
     })

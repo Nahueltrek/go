@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
+use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
 use App\Http\Controllers\Admin\BusinessController as AdminBusinessController;
 use App\Http\Controllers\Admin\ClaimController as AdminClaimController;
 use App\Http\Controllers\Admin\GoChileDashboardController as AdminDashboardController;
@@ -137,4 +138,14 @@ Route::middleware(['auth', 'role:admin,super_admin,editor'])->prefix('admin/arti
     Route::post('/', [AdminArticleController::class, 'store'])->name('store');
     Route::get('/{article}/editar', [AdminArticleController::class, 'edit'])->name('edit');
     Route::put('/{article}', [AdminArticleController::class, 'update'])->name('update');
+});
+
+// --- Sprint Bitácora GO 1.0: admin de BlogPost (Bitácora), no existía ---
+Route::middleware(['auth', 'role:admin,super_admin,editor'])->prefix('admin/bitacora')->name('admin.blog-posts.')->group(function () {
+    Route::get('/', [AdminBlogPostController::class, 'index'])->name('index');
+    Route::get('/nueva', [AdminBlogPostController::class, 'create'])->name('create');
+    Route::post('/', [AdminBlogPostController::class, 'store'])->name('store');
+    Route::post('/subir-imagen', [AdminBlogPostController::class, 'uploadImage'])->name('upload-image');
+    Route::get('/{blogPost}/editar', [AdminBlogPostController::class, 'edit'])->name('edit');
+    Route::put('/{blogPost}', [AdminBlogPostController::class, 'update'])->name('update');
 });

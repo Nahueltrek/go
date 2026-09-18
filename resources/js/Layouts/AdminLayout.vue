@@ -12,6 +12,7 @@ const nav = [
   { label: 'Colaboradores', href: '/admin/colaboradores' },
   { label: 'Reclamos', href: '/admin/claims' },
   { label: 'Reseñas', href: '/admin/reviews' },
+  { label: 'Bitácora', href: '/admin/bitacora' },
   { label: 'Artículos', href: '/admin/articles' },
 ]
 

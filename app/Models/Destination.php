@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasGeoLocation;
 use Illuminate\Database\Eloquent\Model;
 
 class Destination extends Model
 {
+    use HasGeoLocation;
+
     protected $fillable = ['name', 'slug', 'description', 'cover_image', 'is_active', 'active_layers'];
 
-    protected $hidden = ['boundary'];
+    protected $hidden = ['boundary', 'location'];
 
     protected function casts(): array
     {

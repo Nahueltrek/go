@@ -7,6 +7,10 @@ const props = defineProps({
   description: { type: String, default: '' },
   image: { type: String, default: '' },
   type: { type: String, default: 'website' },
+  // Uno o varios bloques de datos estructurados (schema.org), p. ej.
+  // { "@context": "https://schema.org", "@type": "Article", ... }. Se
+  // serializan tal cual a <script type="application/ld+json">.
+  jsonLd: { type: [Object, Array], default: null },
 })
 
 const canonicalUrl = computed(() => {
@@ -20,6 +24,11 @@ const metaDescription = computed(() => {
   if (!props.description) return ''
   const clean = props.description.trim()
   return clean.length > 160 ? clean.slice(0, 157).trimEnd() + '…' : clean
+})
+
+const jsonLdBlocks = computed(() => {
+  if (!props.jsonLd) return []
+  return Array.isArray(props.jsonLd) ? props.jsonLd : [props.jsonLd]
 })
 </script>
 
@@ -39,5 +48,11 @@ const metaDescription = computed(() => {
     <meta name="twitter:title" :content="title" />
     <meta v-if="metaDescription" name="twitter:description" :content="metaDescription" />
     <meta name="twitter:image" :content="resolvedImage" />
+
+    <script
+      v-for="(block, i) in jsonLdBlocks"
+      :key="i"
+      type="application/ld+json"
+    >{{ JSON.stringify(block) }}</script>
   </Head>
 </template>

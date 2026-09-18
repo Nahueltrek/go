@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attraction;
 use App\Models\Business;
+use App\Models\Destination;
 use App\Models\Event;
 use App\Models\Experience;
 use App\Models\Organization;
@@ -94,6 +95,18 @@ class MapController extends Controller
             );
         }
 
+        if (! $layer || $layer === 'destinos') {
+            $features = $features->merge(
+                Destination::withCoordinates()->whereNotNull('location')
+                    ->where('is_active', true)->get()
+                    ->filter(fn ($d) => $d->latitude !== null)
+                    ->map(fn ($d) => $this->feature(
+                        $d->latitude, $d->longitude, 'destinos', $d->name,
+                        null, null
+                    ))
+            );
+        }
+
         if (! $layer || $layer === 'eventos') {
             $features = $features->merge(
                 Event::published()->upcoming()->withCoordinates()->whereNotNull('location')->get()
@@ -111,7 +124,7 @@ class MapController extends Controller
         ]);
     }
 
-    private function feature(float $lat, float $lng, string $layer, string $name, string $url, ?string $subtitle): array
+    private function feature(float $lat, float $lng, string $layer, string $name, ?string $url, ?string $subtitle): array
     {
         return [
             'type' => 'Feature',
@@ -131,6 +144,7 @@ class MapController extends Controller
             ['key' => 'negocios', 'label' => 'Negocios', 'color' => '#7b5ea3', 'icon' => '🏪'],
             ['key' => 'proyectos', 'label' => 'Proyectos', 'color' => '#4a7c3f', 'icon' => '🌱'],
             ['key' => 'atractivos', 'label' => 'Atractivos', 'color' => '#c2410c', 'icon' => '📍'],
+            ['key' => 'destinos', 'label' => 'Destinos', 'color' => '#0d9488', 'icon' => '🏞️'],
             ['key' => 'eventos', 'label' => 'Agenda', 'color' => '#c9962c', 'icon' => '📅'],
         ];
     }
