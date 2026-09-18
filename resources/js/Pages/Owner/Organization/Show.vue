@@ -6,7 +6,15 @@ const props = defineProps({
   organization: Object,
   experiences: Object,
   projects: Object,
+  metrics: Object,
 })
+
+const statTiles = [
+  { key: 'visits', label: 'Visitas al perfil' },
+  { key: 'whatsapp_clicks', label: 'Clics a WhatsApp' },
+  { key: 'instagram_clicks', label: 'Clics a Instagram' },
+  { key: 'website_clicks', label: 'Clics al sitio web' },
+]
 
 const page = usePage()
 
@@ -59,6 +67,16 @@ function actionFor(item, basePath) {
     <p class="mb-4 text-xs text-sky-500 bg-sky-100/60 rounded-xl p-3">
       💡 GO Chile revisa y publica tu contenido — tus experiencias y proyectos nuevos quedan en borrador hasta que los envíes a revisión.
     </p>
+
+    <section class="mb-4">
+      <h2 class="text-xs font-bold text-sky-900 uppercase tracking-wide mb-2">Cómo te está yendo en GO Chile</h2>
+      <div class="grid grid-cols-2 gap-2">
+        <div v-for="tile in statTiles" :key="tile.key" class="rounded-2xl bg-white border border-sky-100 p-3">
+          <p class="text-2xl font-bold text-sky-900">{{ metrics?.[tile.key] ?? 0 }}</p>
+          <p class="text-xs text-sky-500">{{ tile.label }}</p>
+        </div>
+      </div>
+    </section>
 
     <section class="rounded-2xl bg-white border border-sky-100 p-4 mb-4">
       <div class="flex items-center justify-between mb-2">

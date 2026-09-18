@@ -19,6 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
+
+        // Beacon de métricas de perfil (GO_CHILE_MODELO_COMERCIAL.md §21): se
+        // dispara con navigator.sendBeacon/fetch keepalive al hacer click en
+        // WhatsApp/teléfono/web/Instagram, sin token CSRF disponible en ese
+        // contexto. No es una acción sensible (solo incrementa un contador).
+        $middleware->validateCsrfTokens(except: [
+            'operadores/*/click',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -48,6 +48,7 @@ Route::get('/explorar', [SearchController::class, 'index'])->name('explorar');
 Route::get('/mapa', [MapController::class, 'index'])->name('mapa');
 Route::get('/mapa/geojson', [MapController::class, 'geojson'])->name('mapa.geojson');
 Route::get('/operadores/{slug}', [OrganizationController::class, 'show'])->name('operadores.show');
+Route::post('/operadores/{slug}/click', [OrganizationController::class, 'trackClick'])->name('operadores.click');
 Route::get('/experiencias/{slug}', [ExperienceController::class, 'show'])->name('experiencias.show');
 Route::get('/proyectos/{slug}', [ProjectController::class, 'show'])->name('proyectos.show');
 Route::get('/agenda', [EventController::class, 'index'])->name('agenda.index');

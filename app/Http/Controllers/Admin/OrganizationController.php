@@ -68,6 +68,7 @@ class OrganizationController extends Controller
             // Para el select de "asignar dueño" (Sprint 2 — ownership manual
             // para organizaciones existentes, ver docs/SPRINT_1_ARQUITECTURA_GO_CHILE.md §9).
             'users' => User::orderBy('name')->get(['id', 'name', 'email']),
+            'metrics' => $organization->metricCounts(),
         ]);
     }
 

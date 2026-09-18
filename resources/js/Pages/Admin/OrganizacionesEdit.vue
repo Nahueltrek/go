@@ -8,7 +8,15 @@ const props = defineProps({
   regions: Array,
   categories: Array,
   users: Array,
+  metrics: Object,
 })
+
+const statTiles = [
+  { key: 'visits', label: 'Visitas' },
+  { key: 'whatsapp_clicks', label: 'WhatsApp' },
+  { key: 'instagram_clicks', label: 'Instagram' },
+  { key: 'website_clicks', label: 'Sitio web' },
+]
 
 function findRegionIdForCommune(communeId) {
   if (!communeId) return null
@@ -73,6 +81,16 @@ function save() {
         <path d="M0,24 L0,14 L50,4 L100,16 L150,2 L200,14 L250,6 L300,16 L350,8 L400,14 L400,24 Z" fill="#eff6ff" />
       </svg>
     </div>
+
+    <section class="rounded-2xl bg-white border border-sky-100 p-4 mb-3 animate-fade-in-up">
+      <h2 class="text-xs font-bold text-sky-900 uppercase tracking-wide mb-3">Métricas</h2>
+      <div class="grid grid-cols-4 gap-2">
+        <div v-for="tile in statTiles" :key="tile.key">
+          <p class="text-lg font-bold text-sky-900">{{ metrics?.[tile.key] ?? 0 }}</p>
+          <p class="text-[11px] text-sky-500">{{ tile.label }}</p>
+        </div>
+      </div>
+    </section>
 
     <form class="space-y-3" @submit.prevent="save">
       <section class="rounded-2xl bg-white border border-sky-100 p-4 animate-fade-in-up">

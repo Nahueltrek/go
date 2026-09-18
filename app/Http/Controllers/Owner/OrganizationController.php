@@ -34,6 +34,7 @@ class OrganizationController extends Controller
             'projects' => ProjectResource::collection(
                 $organization->projects()->latest()->get()
             ),
+            'metrics' => $organization->metricCounts(),
         ]);
     }
 

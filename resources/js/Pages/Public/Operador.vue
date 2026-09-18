@@ -65,6 +65,7 @@ const planBadge = computed(() => {
         :whatsapp="organization.whatsapp"
         :instagram="organization.instagram"
         :website="organization.website"
+        :organization-slug="organization.slug"
       />
     </section>
 

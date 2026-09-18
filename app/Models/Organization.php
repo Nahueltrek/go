@@ -70,6 +70,31 @@ class Organization extends Model
         return $this->hasMany(BlogPost::class, 'related_organization_id');
     }
 
+    public function metricEvents(): HasMany
+    {
+        return $this->hasMany(OrganizationMetricEvent::class);
+    }
+
+    /**
+     * Conteos para el "Dashboard del operador" (GO_CHILE_MODELO_COMERCIAL.md
+     * §21) — una query agregada en vez de N llamadas a metricEvents()->count().
+     */
+    public function metricCounts(): array
+    {
+        $counts = $this->metricEvents()
+            ->selectRaw('type, count(*) as total')
+            ->groupBy('type')
+            ->pluck('total', 'type');
+
+        return [
+            'visits' => (int) ($counts['visit'] ?? 0),
+            'whatsapp_clicks' => (int) ($counts['whatsapp_click'] ?? 0),
+            'phone_clicks' => (int) ($counts['phone_click'] ?? 0),
+            'website_clicks' => (int) ($counts['website_click'] ?? 0),
+            'instagram_clicks' => (int) ($counts['instagram_click'] ?? 0),
+        ];
+    }
+
     public function reviews(): MorphMany
     {
         return $this->morphMany(Review::class, 'reviewable');
