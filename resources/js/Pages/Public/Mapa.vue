@@ -18,34 +18,49 @@ const locating = ref(false)
 const eclipseZoneVisible = ref(true)
 let map
 let geolocate
-let eclipseZoneLabelMarker
+let eclipseZoneLabelMarkers = []
 
 /**
- * Zona referencial de mayor duración del Eclipse Solar Anular del
+ * Franja referencial de mayor duración del Eclipse Solar Anular del
  * 6-feb-2027 — NO es el trazado científico exacto de la franja de
  * anularidad (eso requiere el KML/GeoJSON oficial de NASA/observatorios,
- * que este entorno no puede descargar). Es una elipse ilustrativa que
- * cubre las localidades públicamente citadas con mayor duración
- * (Futaleufú, Chaitén, Palena, Quellón), pensada para dar notoriedad
- * visual al evento hasta que se cargue el trazado real.
+ * que este entorno no puede descargar). Es un rectángulo recto orientado
+ * según la línea real entre Quellón y Palena (las localidades públicamente
+ * citadas con mayor duración, junto a Futaleufú y Chaitén, todas dentro de
+ * esta franja) — no una elipse arbitraria — pensado para dar notoriedad
+ * visual a la dirección real por la que pasa la sombra hasta que se cargue
+ * el trazado oficial.
  */
+const ECLIPSE_TOWNS = {
+  quellon: { lat: -43.121, lng: -73.608 },
+  palena: { lat: -43.618, lng: -71.804 },
+}
 const ECLIPSE_ZONE_CENTER = { lat: -43.21, lng: -72.5 }
+const ECLIPSE_MAX_DURATION_POINT = { lat: -43.1833, lng: -71.8667, label: 'Futaleufú — 7 min 29 s (mayor duración registrada en Chile)' }
 
-function eclipseZoneRing() {
+function eclipseBandPolygon() {
   const centerLat = ECLIPSE_ZONE_CENTER.lat
   const centerLng = ECLIPSE_ZONE_CENTER.lng
-  const semiMajorKm = 130 // eje este-oeste
-  const semiMinorKm = 75  // eje norte-sur
   const latKmPerDeg = 110.574
   const lngKmPerDeg = 111.320 * Math.cos(centerLat * Math.PI / 180)
-  const points = 64
-  const ring = []
-  for (let i = 0; i <= points; i++) {
-    const theta = (i / points) * 2 * Math.PI
-    const dLng = (semiMajorKm * Math.cos(theta)) / lngKmPerDeg
-    const dLat = (semiMinorKm * Math.sin(theta)) / latKmPerDeg
-    ring.push([centerLng + dLng, centerLat + dLat])
+
+  // Dirección real de la franja: línea Quellón → Palena, en km locales.
+  const dLatKm = (ECLIPSE_TOWNS.palena.lat - ECLIPSE_TOWNS.quellon.lat) * latKmPerDeg
+  const dLngKm = (ECLIPSE_TOWNS.palena.lng - ECLIPSE_TOWNS.quellon.lng) * lngKmPerDeg
+  const len = Math.hypot(dLatKm, dLngKm)
+  const dir = { lng: dLngKm / len, lat: dLatKm / len }
+  const perp = { lng: -dir.lat, lat: dir.lng } // rotar 90°
+
+  const halfLength = 170 // km — más larga que la distancia real entre pueblos, para sugerir que la franja sigue más allá del mapa visible
+  const halfWidth = 32   // km
+
+  const corner = (alongSign, acrossSign) => {
+    const eastKm = alongSign * halfLength * dir.lng + acrossSign * halfWidth * perp.lng
+    const northKm = alongSign * halfLength * dir.lat + acrossSign * halfWidth * perp.lat
+    return [centerLng + eastKm / lngKmPerDeg, centerLat + northKm / latKmPerDeg]
   }
+
+  const ring = [corner(-1, -1), corner(-1, 1), corner(1, 1), corner(1, -1), corner(-1, -1)]
   return ring
 }
 
@@ -179,13 +194,23 @@ async function loadGeojson() {
   }
 }
 
+function htmlPill(text, { color = '#92400e', bold = true } = {}) {
+  const el = document.createElement('div')
+  el.textContent = text
+  el.style.cssText = `max-width:190px;padding:4px 10px;border-radius:9999px;`
+    + `background:rgba(255,255,255,.92);color:${color};font-size:11px;font-weight:${bold ? 600 : 500};`
+    + `text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.15);pointer-events:none;`
+    + `white-space:normal;line-height:1.3;`
+  return el
+}
+
 function addEclipseZoneLayer() {
   map.addSource('eclipse-zone', {
     type: 'geojson',
     data: {
       type: 'Feature',
       properties: {},
-      geometry: { type: 'Polygon', coordinates: [eclipseZoneRing()] },
+      geometry: { type: 'Polygon', coordinates: [eclipseBandPolygon()] },
     },
   })
 
@@ -203,22 +228,18 @@ function addEclipseZoneLayer() {
     paint: { 'line-color': '#d97706', 'line-width': 2, 'line-dasharray': [3, 2] },
   })
 
-  // Etiqueta como Marker HTML (no symbol layer de MapLibre) — el estilo base
-  // (openfreemap/positron) no sirve los glyphs de emoji/rangos unicode
+  // Etiquetas como Markers HTML (no symbol layer de MapLibre) — el estilo
+  // base (openfreemap/positron) no sirve los glyphs de emoji/rangos unicode
   // altos (404 en /fonts/.../55296-... etc.), así que un 'text-field' con
-  // 🌑 rompía el render de la capa. Un div posicionado no depende de eso.
-  // Estilos inline (no CSS scoped de Vue): este div se crea fuera del
-  // template, con document.createElement, así que el `data-v-*` de
-  // scoped styles nunca lo alcanza.
-  const el = document.createElement('div')
-  el.textContent = '🌑 Zona de mayor duración — Eclipse 2027 (referencial)'
-  el.style.cssText = 'max-width:180px;padding:4px 10px;border-radius:9999px;'
-    + 'background:rgba(255,255,255,.92);color:#92400e;font-size:11px;font-weight:600;'
-    + 'text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.15);pointer-events:none;'
-    + 'white-space:normal;line-height:1.3;'
-  eclipseZoneLabelMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
-    .setLngLat([ECLIPSE_ZONE_CENTER.lng, ECLIPSE_ZONE_CENTER.lat])
-    .addTo(map)
+  // 🌑 rompía el render de toda la capa. Un div posicionado no depende de eso.
+  eclipseZoneLabelMarkers = [
+    new maplibregl.Marker({ element: htmlPill('🌑 Franja de mayor duración — Eclipse 2027 (referencial, no es el trazado oficial)'), anchor: 'center' })
+      .setLngLat([ECLIPSE_ZONE_CENTER.lng, ECLIPSE_ZONE_CENTER.lat])
+      .addTo(map),
+    new maplibregl.Marker({ element: htmlPill(ECLIPSE_MAX_DURATION_POINT.label), anchor: 'top' })
+      .setLngLat([ECLIPSE_MAX_DURATION_POINT.lng, ECLIPSE_MAX_DURATION_POINT.lat])
+      .addTo(map),
+  ]
 }
 
 function toggleEclipseZone() {
@@ -227,7 +248,8 @@ function toggleEclipseZone() {
   for (const id of ['eclipse-zone-fill', 'eclipse-zone-outline']) {
     if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', visibility)
   }
-  eclipseZoneLabelMarker?.getElement().style.setProperty('display', eclipseZoneVisible.value ? '' : 'none')
+  const display = eclipseZoneVisible.value ? '' : 'none'
+  eclipseZoneLabelMarkers.forEach((m) => m.getElement().style.setProperty('display', display))
 }
 
 function toggleLayer(key) {
