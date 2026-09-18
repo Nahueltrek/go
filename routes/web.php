@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationContro
 use App\Http\Controllers\Admin\ExperienceController as AdminExperienceController;
 use App\Http\Controllers\Admin\ModerationController as AdminModerationController;
 use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
+use App\Http\Controllers\Admin\ProspectController as AdminProspectController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Owner\BusinessEditController;
 use App\Http\Controllers\Owner\ClaimController as OwnerClaimController;
@@ -109,6 +110,15 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::put('/organizaciones/{organization}', [AdminOrganizationController::class, 'update'])->name('organizaciones.update');
     Route::post('/organizaciones/{organization}/approve', [AdminOrganizationController::class, 'approve'])->name('organizaciones.approve');
     Route::post('/organizaciones/{organization}/suspend', [AdminOrganizationController::class, 'suspend'])->name('organizaciones.suspend');
+
+    // --- CRM de prospectos/fundadores (§15-16, §31) ---
+    Route::get('/prospectos', [AdminProspectController::class, 'index'])->name('prospectos.index');
+    Route::get('/prospectos/nuevo', [AdminProspectController::class, 'create'])->name('prospectos.create');
+    Route::post('/prospectos', [AdminProspectController::class, 'store'])->name('prospectos.store');
+    Route::get('/prospectos/{prospect}/editar', [AdminProspectController::class, 'edit'])->name('prospectos.edit');
+    Route::put('/prospectos/{prospect}', [AdminProspectController::class, 'update'])->name('prospectos.update');
+    Route::delete('/prospectos/{prospect}', [AdminProspectController::class, 'destroy'])->name('prospectos.destroy');
+    Route::post('/prospectos/{prospect}/convertir', [AdminProspectController::class, 'convert'])->name('prospectos.convert');
 
     Route::get('/experiencias', [AdminExperienceController::class, 'index'])->name('experiencias.index');
     Route::get('/experiencias/nueva', [AdminExperienceController::class, 'create'])->name('experiencias.create');

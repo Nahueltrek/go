@@ -6,6 +6,7 @@ const page = usePage()
 const nav = [
   { label: 'Dashboard', href: '/admin', exact: true },
   { label: 'Organizaciones', href: '/admin/organizaciones' },
+  { label: 'Prospectos', href: '/admin/prospectos' },
   { label: 'Experiencias', href: '/admin/experiencias' },
   { label: 'Proyectos', href: '/admin/proyectos' },
   { label: 'Moderación', href: '/admin/moderacion' },
