@@ -31,7 +31,7 @@ class EventController extends Controller
             ->firstOrFail();
 
         return Inertia::render('Public/Evento', [
-            'event' => new EventResource($event),
+            'event' => (new EventResource($event))->resolve(),
         ]);
     }
 }
