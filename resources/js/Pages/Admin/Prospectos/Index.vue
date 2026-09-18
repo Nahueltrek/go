@@ -89,6 +89,10 @@ function destroy(id) {
           </span>
         </div>
 
+        <p v-if="p.whatsapp || p.email" class="text-xs text-sky-400 mt-1">
+          {{ [p.whatsapp, p.email].filter(Boolean).join(' · ') }}
+        </p>
+
         <p v-if="p.observed_problem" class="text-xs text-sky-500 mt-2 line-clamp-2">{{ p.observed_problem }}</p>
 
         <div class="flex gap-2 mt-3">

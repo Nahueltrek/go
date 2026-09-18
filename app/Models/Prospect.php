@@ -10,7 +10,7 @@ class Prospect extends Model
 {
     protected $fillable = [
         'business_name', 'contact_name', 'territory', 'category',
-        'instagram', 'website', 'whatsapp', 'observed_problem', 'notes',
+        'instagram', 'website', 'whatsapp', 'email', 'observed_problem', 'notes',
         'source', 'status', 'last_contacted_at',
     ];
 

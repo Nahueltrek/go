@@ -17,6 +17,7 @@ const form = ref({
   instagram: props.prospect?.instagram ?? '',
   website: props.prospect?.website ?? '',
   whatsapp: props.prospect?.whatsapp ?? '',
+  email: props.prospect?.email ?? '',
   observed_problem: props.prospect?.observed_problem ?? '',
   notes: props.prospect?.notes ?? '',
   source: props.prospect?.source ?? '',
@@ -97,6 +98,11 @@ function save() {
           <div>
             <label class="block text-xs text-sky-500 mb-1">WhatsApp</label>
             <input v-model="form.whatsapp" type="text" placeholder="+56 9…"
+                   class="w-full rounded-xl border border-sky-200 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300" />
+          </div>
+          <div>
+            <label class="block text-xs text-sky-500 mb-1">Email</label>
+            <input v-model="form.email" type="text" placeholder="contacto@negocio.cl"
                    class="w-full rounded-xl border border-sky-200 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300" />
           </div>
         </div>

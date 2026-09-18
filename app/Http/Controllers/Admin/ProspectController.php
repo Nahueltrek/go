@@ -94,6 +94,9 @@ class ProspectController extends Controller
             'instagram' => ['nullable', 'string', 'max:255'],
             'website' => ['nullable', 'url', 'max:255'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
+            // string (no 'email' rule): algunos registros traen más de una
+            // dirección separadas por "/" hasta que se confirme cuál usar.
+            'email' => ['nullable', 'string', 'max:255'],
             'observed_problem' => ['nullable', 'string', 'max:2000'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'source' => ['nullable', 'string', 'max:255'],
