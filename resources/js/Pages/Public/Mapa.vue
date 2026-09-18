@@ -18,6 +18,7 @@ const locating = ref(false)
 const eclipseZoneVisible = ref(true)
 let map
 let geolocate
+let eclipseZoneLabelMarker
 
 /**
  * Zona referencial de mayor duración del Eclipse Solar Anular del
@@ -28,9 +29,11 @@ let geolocate
  * (Futaleufú, Chaitén, Palena, Quellón), pensada para dar notoriedad
  * visual al evento hasta que se cargue el trazado real.
  */
+const ECLIPSE_ZONE_CENTER = { lat: -43.21, lng: -72.5 }
+
 function eclipseZoneRing() {
-  const centerLat = -43.21
-  const centerLng = -72.5
+  const centerLat = ECLIPSE_ZONE_CENTER.lat
+  const centerLng = ECLIPSE_ZONE_CENTER.lng
   const semiMajorKm = 130 // eje este-oeste
   const semiMinorKm = 75  // eje norte-sur
   const latKmPerDeg = 110.574
@@ -200,26 +203,31 @@ function addEclipseZoneLayer() {
     paint: { 'line-color': '#d97706', 'line-width': 2, 'line-dasharray': [3, 2] },
   })
 
-  map.addLayer({
-    id: 'eclipse-zone-label',
-    type: 'symbol',
-    source: 'eclipse-zone',
-    layout: {
-      'symbol-placement': 'point',
-      'text-field': '🌑 Zona de mayor duración — Eclipse 2027 (referencial)',
-      'text-size': 11,
-      'text-anchor': 'center',
-    },
-    paint: { 'text-color': '#92400e', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5 },
-  })
+  // Etiqueta como Marker HTML (no symbol layer de MapLibre) — el estilo base
+  // (openfreemap/positron) no sirve los glyphs de emoji/rangos unicode
+  // altos (404 en /fonts/.../55296-... etc.), así que un 'text-field' con
+  // 🌑 rompía el render de la capa. Un div posicionado no depende de eso.
+  // Estilos inline (no CSS scoped de Vue): este div se crea fuera del
+  // template, con document.createElement, así que el `data-v-*` de
+  // scoped styles nunca lo alcanza.
+  const el = document.createElement('div')
+  el.textContent = '🌑 Zona de mayor duración — Eclipse 2027 (referencial)'
+  el.style.cssText = 'max-width:180px;padding:4px 10px;border-radius:9999px;'
+    + 'background:rgba(255,255,255,.92);color:#92400e;font-size:11px;font-weight:600;'
+    + 'text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.15);pointer-events:none;'
+    + 'white-space:normal;line-height:1.3;'
+  eclipseZoneLabelMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+    .setLngLat([ECLIPSE_ZONE_CENTER.lng, ECLIPSE_ZONE_CENTER.lat])
+    .addTo(map)
 }
 
 function toggleEclipseZone() {
   eclipseZoneVisible.value = !eclipseZoneVisible.value
   const visibility = eclipseZoneVisible.value ? 'visible' : 'none'
-  for (const id of ['eclipse-zone-fill', 'eclipse-zone-outline', 'eclipse-zone-label']) {
+  for (const id of ['eclipse-zone-fill', 'eclipse-zone-outline']) {
     if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', visibility)
   }
+  eclipseZoneLabelMarker?.getElement().style.setProperty('display', eclipseZoneVisible.value ? '' : 'none')
 }
 
 function toggleLayer(key) {
