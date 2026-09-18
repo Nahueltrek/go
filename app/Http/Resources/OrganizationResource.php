@@ -23,6 +23,7 @@ class OrganizationResource extends JsonResource
             ] : null),
             'verification_status' => $this->verification_status,
             'claim_status' => $this->claim_status,
+            'plan' => $this->plan,
             'opening_hours' => $this->opening_hours,
             'description' => $this->description,
             'commune' => $this->whenLoaded('commune', fn () => [

@@ -61,7 +61,13 @@ function suspend(id) {
             <img v-if="org.logo_url" :src="org.logo_url" class="h-full w-full object-cover" />
           </div>
           <div class="min-w-0 flex-1">
-            <p class="text-sm font-medium text-sky-900 truncate">{{ org.name }}</p>
+            <div class="flex items-center gap-1.5">
+              <p class="text-sm font-medium text-sky-900 truncate">{{ org.name }}</p>
+              <span v-if="org.plan && org.plan !== 'free'"
+                    class="shrink-0 text-[10px] font-bold uppercase tracking-wide text-sky-950 bg-amber-400 rounded-full px-1.5 py-0.5">
+                {{ org.plan === 'pro_plus' ? 'Pro+' : 'Pro' }}
+              </span>
+            </div>
             <p class="text-xs text-sky-500 capitalize">{{ org.type }} · {{ org.commune?.name }}</p>
           </div>
         </div>

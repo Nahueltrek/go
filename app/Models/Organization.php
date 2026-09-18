@@ -20,7 +20,7 @@ class Organization extends Model
     protected $fillable = [
         'user_id', 'type', 'name', 'slug', 'description', 'commune_id',
         'instagram', 'website', 'whatsapp', 'logo_url', 'cover_image', 'status',
-        'verification_status', 'claim_status', 'opening_hours',
+        'verification_status', 'claim_status', 'opening_hours', 'plan',
     ];
 
     protected function casts(): array
@@ -34,6 +34,11 @@ class Organization extends Model
         'guia', 'operador', 'agencia', 'emprendimiento',
         'alojamiento', 'marca', 'proyecto', 'organizacion',
     ];
+
+    // Modelo comercial GO Chile (GO_CHILE_MODELO_COMERCIAL.md §3-5): 'free' es
+    // el default de todo perfil nuevo, 'pro'/'pro_plus' habilitan el sello
+    // visible en la landing pública.
+    public const PLANS = ['free', 'pro', 'pro_plus'];
 
     public function user(): BelongsTo
     {

@@ -86,6 +86,7 @@ class OrganizationController extends Controller
             'cover_image' => ['nullable', 'url', 'max:255'],
             'verification_status' => ['nullable', 'in:unverified,pending,verified'],
             'claim_status' => ['nullable', 'in:unclaimed,pending,claimed'],
+            'plan' => ['nullable', 'in:free,pro,pro_plus'],
             'opening_hours' => ['nullable', 'string'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],

@@ -22,6 +22,12 @@ const locationLabel = computed(() => {
 const seoDescription = computed(() =>
   props.organization.description || `Conocé a ${props.organization.name}, parte de la red de operadores y colaboradores de GO Chile.`
 )
+
+const planBadge = computed(() => {
+  if (props.organization.plan === 'pro_plus') return 'GO Pro+'
+  if (props.organization.plan === 'pro') return 'GO Pro'
+  return ''
+})
 </script>
 
 <template>
@@ -44,6 +50,7 @@ const seoDescription = computed(() =>
       :meta="locationLabel"
       :cover-image="organization.cover_image"
       :logo-url="organization.logo_url"
+      :badge="planBadge"
     />
 
     <!-- Datos destacados -->

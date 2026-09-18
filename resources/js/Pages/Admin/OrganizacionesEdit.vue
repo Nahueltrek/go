@@ -31,6 +31,7 @@ const form = ref({
   cover_image: props.organization.cover_image ?? '',
   verification_status: props.organization.verification_status ?? 'unverified',
   claim_status: props.organization.claim_status ?? 'unclaimed',
+  plan: props.organization.plan ?? 'free',
   opening_hours: props.organization.opening_hours ? JSON.stringify(props.organization.opening_hours, null, 2) : '',
   category_ids: [...(props.organization.category_ids ?? [])],
 })
@@ -160,6 +161,22 @@ function save() {
             <input v-model="form.cover_image" type="text" placeholder="https://…"
                    class="w-full rounded-xl border border-sky-200 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300" />
           </div>
+        </div>
+      </section>
+
+      <section class="rounded-2xl bg-white border border-sky-100 p-4 animate-fade-in-up" style="animation-delay: .12s">
+        <h2 class="text-xs font-bold text-sky-900 uppercase tracking-wide mb-3">Plan</h2>
+        <div>
+          <label class="block text-xs text-sky-500 mb-1">Plan GO</label>
+          <select v-model="form.plan"
+                  class="w-full rounded-xl border border-sky-200 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300">
+            <option value="free">GO Free</option>
+            <option value="pro">GO Pro</option>
+            <option value="pro_plus">GO Pro+</option>
+          </select>
+          <p class="text-xs text-sky-400 mt-1">
+            GO Pro/Pro+ muestran el sello en la landing pública del operador.
+          </p>
         </div>
       </section>
 
