@@ -1,45 +1,71 @@
 <script setup>
-import { computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
-import MapView from '@/Components/MapView.vue';
+import { computed } from 'vue'
+import { Link } from '@inertiajs/vue3'
+import EntityHero from '@/Components/Public/EntityHero.vue'
+import LocationMap from '@/Components/Public/LocationMap.vue'
+import SeoHead from '@/Components/SeoHead.vue'
 
 const props = defineProps({
   attraction: Object,
-});
+})
 
-const mapPoint = computed(() => (props.attraction.latitude ? [{ ...props.attraction }] : []));
+const locationLabel = computed(() => {
+  const parts = [props.attraction.commune, props.attraction.destination].filter(Boolean)
+  return parts.length ? [...new Set(parts)].join(' · ') : null
+})
+
+const seoDescription = computed(() =>
+  props.attraction.description || `Conocé ${props.attraction.name}, parte de la red de atractivos de GO Chile.`
+)
 </script>
 
 <template>
-  <div class="min-h-screen bg-glacier text-ink font-body antialiased">
-    <header class="px-6 md:px-10 py-5 max-w-3xl mx-auto">
-      <Link href="/" class="font-mono text-xs uppercase tracking-wide text-river-dark hover:underline">
-        ← Ruta 360
+  <SeoHead
+    :title="`${attraction.name} — GO Chile`"
+    :description="seoDescription"
+    :image="attraction.cover_image"
+  />
+  <div class="min-h-screen bg-white pb-12">
+    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-sky-100 px-4 py-2.5 flex items-center gap-2">
+      <Link href="/" class="shrink-0">
+        <img src="/images/logo.png" alt="GO Chile" class="h-7 w-7 rounded-full" />
       </Link>
+      <span class="text-xs font-bold text-sky-950">GO Chile</span>
     </header>
 
-    <main class="px-6 md:px-10 max-w-3xl mx-auto pb-16">
-      <span class="font-mono text-[11px] uppercase tracking-wide text-rock">
-        {{ attraction.category ?? 'Atractivo' }}
-      </span>
-      <h1 class="font-display font-medium text-3xl md:text-4xl mt-2 leading-tight text-balance">
-        {{ attraction.name }}
-      </h1>
+    <EntityHero
+      :title="attraction.name"
+      :subtitle="attraction.category"
+      :meta="locationLabel"
+      :cover-image="attraction.cover_image"
+    />
 
-      <p v-if="attraction.commune" class="font-mono text-xs text-ink/55 mt-4">
-        {{ attraction.commune }}
-      </p>
-
-      <p v-if="attraction.description" class="text-base leading-relaxed text-ink/75 mt-6 max-w-xl">
+    <section class="px-4 pt-4 animate-fade-in-up" style="animation-delay: .05s">
+      <p v-if="attraction.description" class="text-sm text-sky-600 leading-relaxed">
         {{ attraction.description }}
       </p>
 
-      <MapView
-        v-if="mapPoint.length"
-        :businesses="[]"
-        :attractions="mapPoint"
-        class="mt-8"
-      />
-    </main>
+      <a v-if="attraction.source_url" :href="attraction.source_url" target="_blank" rel="noopener"
+         class="inline-block text-sm font-medium rounded-full bg-sky-900 text-white px-4 py-2 mt-4">
+        Cómo llegar (Google Maps)
+      </a>
+    </section>
+
+    <LocationMap
+      :lat="attraction.latitude"
+      :lng="attraction.longitude"
+      :name="attraction.name"
+      :category="attraction.category ?? ''"
+    />
   </div>
 </template>
+
+<style scoped>
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out both;
+}
+</style>
